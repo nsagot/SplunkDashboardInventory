@@ -23,21 +23,34 @@ pip install -r requirements.txt
 - `.env` est déjà listé dans `.gitignore`.
 
 ## Inventaire
-`inventory.yml` contient les dashboards autorisés et leurs ACL :
+`config.yml` définit les champs de métadonnées autorisés :
+```yaml
+metadata_fields:
+  - owner
+  - version
+  - lookup
+  - base_search
+```
+
+`inventory.yml` contient les dashboards autorisés et leurs métadonnées :
 ```yaml
 dashboards:
   - app: search
     name: sample_dashboard
-    description: Tableau de démonstration
+    metadata:
+      owner: admin
+      version: "1.2.3"
+      lookup: my_lookup.csv
+      base_search: index=main sourcetype=access_combined
 ```
 Le chemin local est calculé automatiquement : `dashboards/<app>/<dashboard>.xml`.
-Le téléchargement respecte le scope (global => nobody). L'upload s'appuie sur le chemin (owner) sans paramètre `sharing` : il tente global (owner nobody), puis app (owner configuré), et en dernier recours global. Si le dashboard existe déjà (409/400), une seconde requête est envoyée sans paramètre `name` pour mettre à jour l'objet existant.
+L'upload s'appuie sur l'owner dans l'URL (global = nobody, sinon owner configuré) et, si le dashboard existe déjà (409/400), une seconde requête est envoyée sans paramètre `name` pour mettre à jour l'objet existant.
 
 ## Commandes
 ```
 python -m splunk_dash.cli list
-python -m splunk_dash.cli download <app> <dashboard> [--out chemin.xml]
-python -m splunk_dash.cli upload   <app> <dashboard> [--file chemin.xml]
+python -m splunk_dash.cli download <app> <dashboard>
+python -m splunk_dash.cli upload   <app> <dashboard>
 ```
 Exemple :
 ```

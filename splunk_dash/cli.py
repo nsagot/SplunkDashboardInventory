@@ -28,23 +28,23 @@ def handle_list(_: argparse.Namespace, inventory: Inventory, *__: object) -> int
         print("No dashboards registered in inventory.")
         return 0
     for entry in inventory.list_entries():
-        desc = f" - {entry.description}" if entry.description else ""
-        print(f"{entry.app}/{entry.name} [{entry.filename}]{desc}")
+        meta = ", ".join(f"{k}={v}" for k, v in entry.metadata.items())
+        meta_display = f" ({meta})" if meta else ""
+        print(f"{entry.app}/{entry.name} [{entry.filename}]{meta_display}")
     return 0
 
 
 def handle_download(args: argparse.Namespace, inventory: Inventory, api: SplunkAPI) -> int:
     entry = inventory.require(args.app, args.dashboard)
-    output_path = Path(args.out) if args.out else entry.filename
     content = api.fetch_dashboard(entry.app, entry.name)
-    _save_content(output_path, content)
-    print(f"Downloaded {entry.app}/{entry.name} to {output_path}")
+    _save_content(entry.filename, content)
+    print(f"Downloaded {entry.app}/{entry.name} to {entry.filename}")
     return 0
 
 
 def handle_upload(args: argparse.Namespace, inventory: Inventory, api: SplunkAPI) -> int:
     entry = inventory.require(args.app, args.dashboard)
-    path = Path(args.file) if args.file else entry.filename
+    path = entry.filename
     content = _load_file(path)
     api.upload_dashboard(entry.app, entry.name, content)
     print(f"Uploaded {entry.app}/{entry.name} from {path}")
@@ -66,12 +66,10 @@ def build_parser() -> argparse.ArgumentParser:
     download = subparsers.add_parser("download", help="Download a dashboard from Splunk")
     download.add_argument("app", help="Splunk app name")
     download.add_argument("dashboard", help="Dashboard name")
-    download.add_argument("--out", help="Override output path; defaults to inventory filename")
 
     upload = subparsers.add_parser("upload", help="Upload a dashboard to Splunk")
     upload.add_argument("app", help="Splunk app name")
     upload.add_argument("dashboard", help="Dashboard name")
-    upload.add_argument("--file", help="Override source file path; defaults to inventory filename")
 
     return parser
 
