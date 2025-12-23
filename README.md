@@ -23,13 +23,19 @@ pip install -r requirements.txt
 - `.env` est déjà listé dans `.gitignore`.
 
 ## Inventaire
-`inventory.yml` contient les dashboards autorisés :
+`inventory.yml` contient les dashboards autorisés et leurs ACL :
 ```yaml
 dashboards:
   - app: search
     name: sample_dashboard
+    description: Tableau de démonstration
+    scope: app        # "app" ou "global"
+    roles_read: [power, user]   # optionnel
+    roles_write: [admin]        # optionnel
 ```
 Le chemin local est calculé automatiquement : `dashboards/<app>/<dashboard>.xml`.
+Le téléchargement respecte le scope (global => nobody). L'upload s'appuie sur le chemin (owner) sans paramètre `sharing` : il tente global (owner nobody), puis app (owner configuré), et en dernier recours global. Les rôles lecture/écriture sont appliqués si fournis.
+Si le dashboard existe déjà (409/400), une seconde requête est envoyée sans paramètre `name` pour mettre à jour l'objet existant.
 
 ## Commandes
 ```

@@ -5,6 +5,8 @@ import sys
 from pathlib import Path
 from typing import Callable
 
+import requests
+
 from .config import load_config
 from .inventory import Inventory
 from .splunk_api import SplunkAPI
@@ -89,6 +91,18 @@ def main(argv: list[str] | None = None) -> int:
         }
         handler = handlers[args.command]
         return int(handler(args, inventory, api))
+    except requests.HTTPError as exc:  # pragma: no cover - friendly HTTP errors
+        resp = exc.response
+        status = f"{resp.status_code} {resp.reason}" if resp is not None else "HTTP error"
+        details = ""
+        if resp is not None:
+            try:
+                details = resp.text[:500]
+            except Exception:
+                details = ""
+        suffix = f"\nDetails: {details}" if details else ""
+        print(f"HTTP error during '{args.command}': {status} — {exc}{suffix}", file=sys.stderr)
+        return 1
     except Exception as exc:  # pragma: no cover - CLI friendly message
         print(f"Error: {exc}", file=sys.stderr)
         return 1
