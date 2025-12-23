@@ -73,16 +73,10 @@ class SplunkAPI:
         name: str,
         content: str,
         owner: str,
-        roles_read: Optional[List[str]],
-        roles_write: Optional[List[str]],
         include_name: bool = True,
     ) -> None:
         # Paramètre sharing non supporté par ce handler, on s'appuie sur le chemin (owner).
         params: Dict[str, str] = {"output_mode": "json"}
-        if roles_read:
-            params["perms.read"] = ",".join(roles_read)
-        if roles_write:
-            params["perms.write"] = ",".join(roles_write)
         url = self._dashboard_url(app, name, owner=owner)
         resp = self.session.post(
             url,
@@ -115,13 +109,10 @@ class SplunkAPI:
         name: str,
         content: str,
         scope: str = "app",
-        roles_read: Optional[List[str]] = None,
-        roles_write: Optional[List[str]] = None,
     ) -> None:
         """
         Upload ou création d'un dashboard Splunk.
         Stratégie : tenter en global (owner nobody), sinon en app (owner configuré), et si rien ne marche, créer en global.
-        Les rôles sont appliqués si fournis.
         """
         resolved_scope = scope if scope in {"app", "global"} else "app"
         owner_app = self.config.owner or ""
@@ -138,8 +129,6 @@ class SplunkAPI:
                 name=name,
                 content=content,
                 owner=target_owner,
-                roles_read=roles_read,
-                roles_write=roles_write,
                 include_name=False,
             )
             return
@@ -153,8 +142,6 @@ class SplunkAPI:
                         name=name,
                         content=content,
                         owner="nobody",
-                        roles_read=roles_read,
-                        roles_write=roles_write,
                     )
                     return
                 except requests.HTTPError as exc_create:
@@ -165,8 +152,6 @@ class SplunkAPI:
                             name=name,
                             content=content,
                             owner="nobody",
-                            roles_read=roles_read,
-                            roles_write=roles_write,
                             include_name=False,
                         )
                         return
@@ -184,8 +169,6 @@ class SplunkAPI:
                         name=name,
                         content=content,
                         owner=owner_app,
-                        roles_read=roles_read,
-                        roles_write=roles_write,
                     )
                     return
                 except requests.HTTPError as exc_create:
@@ -195,8 +178,6 @@ class SplunkAPI:
                             name=name,
                             content=content,
                             owner=owner_app,
-                            roles_read=roles_read,
-                            roles_write=roles_write,
                             include_name=False,
                         )
                         return
@@ -211,7 +192,5 @@ class SplunkAPI:
             name=name,
             content=content,
             owner="nobody",
-            roles_read=roles_read,
-            roles_write=roles_write,
             include_name=False,
         )
