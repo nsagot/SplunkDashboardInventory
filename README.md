@@ -29,7 +29,7 @@ metadata_fields:
   - owner
   - version
   - lookup
-  - base_search
+  - datasource
 ```
 
 `inventory.yml` contient les dashboards autorisés et leurs métadonnées :
@@ -40,8 +40,10 @@ dashboards:
     metadata:
       owner: admin
       version: "1.2.3"
-      lookup: my_lookup.csv
-      base_search: index=main sourcetype=access_combined
+      lookup: 
+        - lookup.csv
+      datasource: 
+        - o365
 ```
 Le chemin local est calculé automatiquement : `dashboards/<app>/<dashboard>.xml`.
 L'upload s'appuie sur l'owner dans l'URL (global = nobody, sinon owner configuré) et, si le dashboard existe déjà (409/400), une seconde requête est envoyée sans paramètre `name` pour mettre à jour l'objet existant.
