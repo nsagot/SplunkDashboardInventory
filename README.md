@@ -29,7 +29,6 @@ dashboards:
   - app: search
     name: sample_dashboard
     description: Tableau de démonstration
-    scope: app        # "app" ou "global"
 ```
 Le chemin local est calculé automatiquement : `dashboards/<app>/<dashboard>.xml`.
 Le téléchargement respecte le scope (global => nobody). L'upload s'appuie sur le chemin (owner) sans paramètre `sharing` : il tente global (owner nobody), puis app (owner configuré), et en dernier recours global. Si le dashboard existe déjà (409/400), une seconde requête est envoyée sans paramètre `name` pour mettre à jour l'objet existant.
