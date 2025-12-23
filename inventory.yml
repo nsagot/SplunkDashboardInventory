@@ -1,0 +1,4 @@
+dashboards:
+  - app: search
+    name: test
+    description: Example dashboard entry declared for upload/download.

@@ -1,0 +1,5 @@
+<!-- Example dashboard pulled/pushed via CLI -->
+<dashboard>
+  <label>Sample Dashboard</label>
+  <description>Replace this with your real Splunk dashboard XML.</description>
+</dashboard>

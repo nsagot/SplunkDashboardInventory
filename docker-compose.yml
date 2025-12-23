@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  so1:
+    platform: linux/amd64
+    image: ${SPLUNK_IMAGE:-splunk/splunk:latest}
+    hostname: so1
+    container_name: so1
+    environment:
+      - SPLUNK_START_ARGS=--accept-license 
+      - SPLUNK_GENERAL_TERMS=--accept-sgt-current-at-splunk-com
+      - SPLUNK_STANDALONE_URL=so1
+      - SPLUNK_PASSWORD=splunk4ninja
+      #- SPLUNK_APPS_URL=https://splunkbase.splunk.com/app/2890/release/4.1.0/download
+      #- SPLUNKBASE_USERNAME='nicolas.sagot@intrinsec.com'
+      #- SPLUNKBASE_PASSWORD='kg(5j1aA(@GTggm/(#p0lDpf:'
+    ports:
+      - 8000:8000
+      - 8089:8089
